@@ -4,7 +4,7 @@ A lightweight collaborative document editor — think a focused slice of Google 
 
 Built for the Ajaia AI-Native Full Stack take-home. The goal was **depth in a few areas** (editing UX, sharing/access control, file import) rather than shallow coverage everywhere.
 
-> **Live demo:** _add your deployed URL here after following [docs/DEPLOY.md](docs/DEPLOY.md)_
+> **Live demo:** **https://document-test-gamma.vercel.app** &nbsp;(web on Vercel · API on Railway)
 >
 > **Seeded accounts** (password for all: `password123`):
 > | Email | Role in demo |
