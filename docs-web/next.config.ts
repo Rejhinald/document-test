@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Standalone output for a small production Docker image (Railway).
-  output: "standalone",
   // Keep local demos/screenshots clean (production has no dev indicator anyway).
   devIndicators: false,
   // Note: the /api/* proxy to docs-api is a runtime Route Handler

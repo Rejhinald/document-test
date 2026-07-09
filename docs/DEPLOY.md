@@ -1,76 +1,85 @@
-# Deploying to Railway
+# Deploying (Railway + Vercel)
 
-Both services deploy from their `Dockerfile`s in a single Railway project alongside a managed Postgres. This repo has one Git root with two service subdirectories (`docs-api`, `docs-web`), so each Railway service sets its **Root Directory** accordingly.
+- **docs-api + PostgreSQL → Railway** (Dockerfile + managed Postgres)
+- **docs-web → Vercel** (native Next.js, zero-config)
 
-Total: **3 services** — Postgres, docs-api, docs-web.
+No custom domain is required — both platforms hand out free HTTPS subdomains. Deploy the API first so you have its URL for the web app.
 
 ---
 
-## 1. Create the project + database
+## Part A — API + database on Railway
 
-1. Push this repo to GitHub.
-2. In Railway: **New Project → Deploy from GitHub repo** (select this repo).
-3. Add a database: **New → Database → PostgreSQL**. Railway provisions it and exposes `DATABASE_URL`.
+### 1. Create the project + database
 
-## 2. Deploy `docs-api`
+1. Push this repo to GitHub (already done: `Rejhinald/document-test`).
+2. Railway → **New Project → Deploy from GitHub repo** → select the repo.
+3. Add **New → Database → PostgreSQL**. Railway provisions it and exposes `DATABASE_URL`.
 
-1. **New → GitHub Repo** (same repo) → in the service **Settings**, set **Root Directory** to `docs-api`. Railway will use `docs-api/Dockerfile` (declared in `docs-api/railway.json`).
-2. Under **Variables**, add:
+### 2. Deploy `docs-api`
+
+1. In the service created from the repo, open **Settings → set Root Directory = `docs-api`** (uses `docs-api/Dockerfile`, declared in `docs-api/railway.json`).
+2. **Variables:**
 
    | Variable | Value |
    |---|---|
    | `ENVIRONMENT` | `production` |
    | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (reference the Postgres service) |
-   | `JWT_SECRET` | a random string ≥ 16 chars (e.g. `openssl rand -hex 32`) |
+   | `JWT_SECRET` | random ≥ 16 chars (`openssl rand -hex 32`) |
    | `JWT_ACCESS_TOKEN_TTL_SECONDS` | `604800` |
-   | `COOKIE_DOMAIN` | _(leave empty)_ |
+   | `FRONTEND_ORIGIN` | your Vercel URL (fill in after Part B; optional) |
 
-   > `PORT` is injected by Railway automatically — don't set it.
+   > `PORT` is injected by Railway — don't set it.
 
-3. Under **Settings → Networking**, click **Generate Domain**. Note the URL, e.g. `https://docs-api-production.up.railway.app`.
-4. Deploy. The container runs migrations then starts (`bun run db/migrate.ts && bun run index.ts`), so tables are created automatically.
-
-## 3. Deploy `docs-web`
-
-1. **New → GitHub Repo** (same repo) → set **Root Directory** to `docs-web` (uses `docs-web/Dockerfile`).
-2. Under **Variables**, add:
-
-   | Variable | Value |
-   |---|---|
-   | `API_PROXY_ORIGIN` | the docs-api public URL from step 2.3 (no trailing slash) |
-
-   > `PORT` is injected automatically; `HOSTNAME` is set in the Dockerfile.
-
-3. **Generate Domain** for docs-web. This is the URL reviewers will visit.
-4. _(Optional, cosmetic)_ Back on **docs-api**, set `FRONTEND_ORIGIN` to the docs-web URL. Not required — the browser only talks to docs-web, which proxies server-side — but it's correct if anything ever calls the API directly.
-5. Deploy.
-
-## 4. Seed the demo accounts
-
-Run the seed once against the production database. From your machine with the [Railway CLI](https://docs.railway.app/develop/cli):
-
-```bash
-cd docs-api
-railway link                        # select this project + the docs-api service
-railway run bun run seed            # runs locally against the prod DATABASE_URL
-```
-
-Alternatively, temporarily set the docs-api **Deploy → Custom Start Command** to `bun run db/migrate.ts && bun run seed && bun run index.ts`, deploy once, then revert it.
-
-This creates `alice@example.com`, `bob@example.com`, `carol@example.com` (password `password123`) and the shared demo document.
-
-## 5. Verify
-
-Open the **docs-web** URL, sign in as `alice@example.com` / `password123`, and confirm documents load and sharing works.
+3. **Settings → Networking → Generate Domain.** Note it, e.g. `https://docs-api-production.up.railway.app`.
+4. Deploy. The container migrates then starts (`bun run db/migrate.ts && bun run index.ts`), so tables are created automatically.
 
 ---
 
-## How the pieces talk (why this is simple)
+## Part B — Web app on Vercel
 
-The browser only ever calls the **docs-web** origin. `docs-web` proxies `/api/*` to `docs-api` server-side (`app/api/[...path]/route.ts`) and relays the auth cookie, so it's **first-party** — no CORS config and no cross-site cookie settings to get wrong. Because the proxy reads `API_PROXY_ORIGIN` at runtime, you can change the API URL without rebuilding the frontend.
+1. Vercel → **Add New → Project** → import the same GitHub repo.
+2. **Root Directory: `docs-web`** (Vercel auto-detects Next.js; framework preset = Next.js).
+3. **Environment Variables:**
+
+   | Variable | Value |
+   |---|---|
+   | `API_PROXY_ORIGIN` | the Railway docs-api URL from A.3 (no trailing slash) |
+
+   > Read at **runtime** by the `/api` proxy — no rebuild needed if you change it later.
+
+4. **Deploy.** Vercel gives you `https://<project>.vercel.app` — this is the URL reviewers visit.
+5. _(Optional)_ Back on Railway docs-api, set `FRONTEND_ORIGIN` to the Vercel URL. Not required (the browser only talks to Vercel, which proxies server-side), but correct if anything ever calls the API cross-origin.
+
+---
+
+## Part C — Seed the demo accounts
+
+Run the seed once against the production database. With the [Railway CLI](https://docs.railway.app/develop/cli):
+
+```bash
+cd docs-api
+railway link                     # select the project + docs-api service
+railway run bun run seed         # runs locally against the prod DATABASE_URL
+```
+
+Alternative: temporarily set the docs-api **Deploy → Custom Start Command** to
+`bun run db/migrate.ts && bun run seed && bun run index.ts`, deploy once, then revert.
+
+This creates `alice@example.com`, `bob@example.com`, `carol@example.com` (password `password123`) and the shared demo document.
+
+## Part D — Verify
+
+Open the **Vercel** URL, sign in as `alice@example.com` / `password123`, and confirm documents load and sharing works.
+
+---
+
+## How the two clouds talk (why it's simple)
+
+The browser only ever calls the **Vercel** origin. `docs-web/app/api/[...path]/route.ts` runs as a Vercel serverless function that forwards `/api/*` to `API_PROXY_ORIGIN` (Railway) and relays the response, including `Set-Cookie`. So the auth cookie is **first-party** on the Vercel domain — no CORS between Vercel and Railway, and no cross-site-cookie settings to get wrong. Because the proxy reads `API_PROXY_ORIGIN` at request time, the frontend build isn't coupled to the API URL.
 
 ## Troubleshooting
 
-- **401 right after login** — the demo accounts weren't seeded; run step 4.
-- **Web loads but API calls fail** — `API_PROXY_ORIGIN` is wrong or has a trailing slash; it must be the docs-api public URL.
-- **docs-api crash on boot** — check `DATABASE_URL` references the Postgres service and `JWT_SECRET` is ≥ 16 chars.
+- **401 right after login** — demo accounts weren't seeded; run Part C.
+- **Web loads but API calls fail** — `API_PROXY_ORIGIN` is wrong or has a trailing slash; it must be the Railway docs-api URL.
+- **docs-api crashes on boot** — check `DATABASE_URL` references the Postgres service and `JWT_SECRET` is ≥ 16 chars.
+- **Vercel build fails** — confirm Root Directory is `docs-web`.

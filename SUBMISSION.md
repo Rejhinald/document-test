@@ -42,7 +42,7 @@ Sign in as Alice to create/share; sign in as Bob (edit) or Carol (read-only) to 
 - ✅ Real auth (seeded accounts, JWT httpOnly cookie); persistence in Postgres
 - ✅ Validation + typed error handling; loading/empty states; responsive sidebar
 - ✅ 1 meaningful automated test (full access-control matrix + import) — `bun test`, 8 passing
-- ✅ Production build validated (Next standalone + Dockerfiles for both services)
+- ✅ Production build validated; deploy config ready (docs-api Dockerfile → Railway, docs-web → Vercel)
 
 ## What's incomplete / intentionally deprioritized
 

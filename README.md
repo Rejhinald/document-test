@@ -35,7 +35,7 @@ Built for the Ajaia AI-Native Full Stack take-home. The goal was **depth in a fe
 
 ## Architecture at a glance
 
-Two independent services (mirrors the reference `avorino` stack), both deployable to Railway:
+Two independent services (mirrors the reference `avorino` stack) — API on Railway, web on Vercel:
 
 ```
 docs-web  (Next.js 16 · React 19 · React Query · Tailwind 4 / CVA · TipTap)
@@ -127,7 +127,7 @@ It verifies: owner & editor can edit, viewer is read-only (403), a stranger gets
 
 ## Deployment
 
-Both services deploy to **Railway** from their `Dockerfile`s alongside a managed Postgres. Step-by-step guide (services, env vars, order): **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+**docs-api + PostgreSQL → Railway** (Dockerfile + managed Postgres); **docs-web → Vercel** (native Next.js). No custom domain needed. Step-by-step guide (services, env vars, order): **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
 ## Scope & tradeoffs
 

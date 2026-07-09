@@ -17,7 +17,7 @@ Requires **docs-api** running (see `../docs-api`).
 | Command | Description |
 |---|---|
 | `bun run dev` | Dev server |
-| `bun run build` | Production build (standalone output) |
+| `bun run build` | Production build (`next build`) |
 | `bun run start` | Serve the production build |
 | `bun run lint` | ESLint |
 
