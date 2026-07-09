@@ -1,0 +1,32 @@
+export const ERRORS = {
+  UNAUTHENTICATED: "You must be signed in to do that.",
+  FORBIDDEN: "You don't have permission to do that.",
+  NOT_FOUND: "Resource not found.",
+  DOCUMENT_NOT_FOUND: "Document not found.",
+  INVALID_CREDENTIALS: "Invalid email or password.",
+  VALIDATION: "Validation failed.",
+  INTERNAL: "Something went wrong. Please try again.",
+  EMAIL_NOT_FOUND: "No user found with that email address.",
+  CANNOT_SHARE_WITH_SELF: "You can't share a document with yourself.",
+  ALREADY_OWNER: "That user already owns this document.",
+  UNSUPPORTED_FILE_TYPE: "Unsupported file type. Upload a .txt, .md, or .docx file.",
+  FILE_TOO_LARGE: "File is too large. The maximum size is 5 MB.",
+  EMPTY_FILE: "The uploaded file is empty.",
+  NO_FILE: "No file was uploaded.",
+} as const;
+
+export const SUCCESS = {
+  LOGGED_IN: "Signed in successfully.",
+  LOGGED_OUT: "Signed out successfully.",
+  ME: "Current user.",
+  DOCUMENT_CREATED: "Document created.",
+  DOCUMENT_UPDATED: "Document saved.",
+  DOCUMENT_DELETED: "Document deleted.",
+  DOCUMENTS_LISTED: "Documents retrieved.",
+  DOCUMENT_RETRIEVED: "Document retrieved.",
+  DOCUMENT_IMPORTED: "Document imported.",
+  SHARE_CREATED: "Document shared.",
+  SHARE_UPDATED: "Share updated.",
+  SHARE_REVOKED: "Access revoked.",
+  SHARES_LISTED: "Shares retrieved.",
+} as const;

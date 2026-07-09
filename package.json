@@ -1,0 +1,23 @@
+{
+  "name": "ajaia-docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ajaia Docs — a lightweight collaborative document editor (docs-api + docs-web).",
+  "scripts": {
+    "install:all": "cd docs-api && bun install && cd ../docs-web && bun install",
+    "db:up": "docker compose -f docs-api/docker-compose.dev.yml up -d --wait",
+    "db:down": "docker compose -f docs-api/docker-compose.dev.yml down",
+    "migrate": "cd docs-api && bun run db:migrate",
+    "seed": "cd docs-api && bun run seed",
+    "dev:api": "cd docs-api && bun run dev",
+    "dev:web": "cd docs-web && bun run dev",
+    "dev": "concurrently -n api,web -c cyan,green \"bun run dev:api\" \"bun run dev:web\"",
+    "typecheck": "cd docs-api && bun run typecheck && cd ../docs-web && bunx tsc --noEmit",
+    "build": "cd docs-web && bun run build",
+    "test": "cd docs-api && bun test",
+    "setup": "bun run install:all && bun run db:up && bun run migrate && bun run seed"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "docs-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "module": "index.ts",
+  "scripts": {
+    "dev": "bun --watch index.ts",
+    "start": "bun index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun run db/migrate.ts",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "seed": "bun run scripts/seed.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.28",
+    "mammoth": "^1.12.0",
+    "marked": "^18.0.5",
+    "postgres": "^3.4.9",
+    "sanitize-html": "^2.17.5",
+    "uuidv7": "^1.2.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "@types/sanitize-html": "^2.16.1",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^7.0.2"
+  }
+}
